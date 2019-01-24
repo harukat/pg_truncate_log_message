@@ -19,7 +19,7 @@ emit_log_hook_impl(ErrorData *edata)
 {
 	int i;
 	char* c;
-	if (pg_truncate_log_message_max_length >= 0)
+	if (pg_truncate_log_message_max_length >= 0 && edata->message)
 	{
 		/* */
 		for (i = 0, c = edata->message; c != '\0'; ++c, ++i)
@@ -27,6 +27,7 @@ emit_log_hook_impl(ErrorData *edata)
 			if (i > pg_truncate_log_message_max_length)
 			{
 				*c = '\0';
+				edata->hide_stmt = true;
 				break;
 			}
 		}
