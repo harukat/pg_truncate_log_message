@@ -22,7 +22,7 @@ emit_log_hook_impl(ErrorData *edata)
 	if (pg_truncate_log_message_max_length >= 0 && edata->message)
 	{
 		/* */
-		for (i = 0, c = edata->message; c != '\0'; ++c, ++i)
+		for (i = 0, c = edata->message; *c != '\0'; ++c, ++i)
 		{
 			if (i > pg_truncate_log_message_max_length)
 			{
