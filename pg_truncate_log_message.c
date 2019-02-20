@@ -12,16 +12,15 @@ void _PG_fini(void);
 void emit_log_hook_impl(ErrorData *edata);
 
 static emit_log_hook_type prev_emit_log_hook = NULL;
-static int pg_truncate_log_message_max_length = -1;
+static int32 pg_truncate_log_message_max_length = -1;
 
 void
 emit_log_hook_impl(ErrorData *edata)
 {
-	int i;
+	int32 i;
 	char* c;
 	if (pg_truncate_log_message_max_length >= 0 && edata->message)
 	{
-		/* */
 		for (i = 0, c = edata->message; *c != '\0'; ++c, ++i)
 		{
 			if (i > pg_truncate_log_message_max_length)
@@ -50,7 +49,13 @@ _PG_init(void)
 	DefineCustomIntVariable("pg_truncate_log_message.max_length",
 		"Sets log message truncation threshold (byte)", NULL,
         &pg_truncate_log_message_max_length, -1, -1, INT_MAX,
-        PGC_SUSET, GUC_UNIT_BYTE, NULL, NULL, NULL);
+        PGC_SUSET, 
+#if PG_VERSION_NUM < 110000
+	    NULL,
+#else
+	    GUC_UNIT_BYTE,
+#endif
+	    NULL, NULL, NULL);
 
 	elog(DEBUG1, "pg_truncate_log_message loaded");
 }
