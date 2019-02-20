@@ -4,6 +4,7 @@
 #include "utils/builtins.h"
 #include "utils/guc.h"
 #include "miscadmin.h"
+#include "mb/pg_wchar.h"
 
 PG_MODULE_MAGIC;
 
@@ -17,18 +18,17 @@ static int32 pg_truncate_log_message_max_length = -1;
 void
 emit_log_hook_impl(ErrorData *edata)
 {
-	int32 i;
+	int len, cliplen;
 	char* c;
 	if (pg_truncate_log_message_max_length >= 0 && edata->message)
 	{
-		for (i = 0, c = edata->message; *c != '\0'; ++c, ++i)
+		len = strlen(edata->message);
+		if (len > pg_truncate_log_message_max_length)
 		{
-			if (i > pg_truncate_log_message_max_length)
-			{
-				*c = '\0';
-				edata->hide_stmt = true;
-				break;
-			}
+			cliplen = pg_mbcliplen(edata->message,
+			            pg_truncate_log_message_max_length, len);
+			*(edata->message + cliplen) = '\0';
+			edata->hide_stmt = true;
 		}
 	}
 
