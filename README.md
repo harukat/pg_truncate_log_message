@@ -22,7 +22,7 @@ postgresql.conf sample:
 
     shared_preload_libraries = 'pg_truncate_log_message'
     
-    pg_truncate_log_message.max_length = '100'
+    pg_truncate_log_message.max_length = '1000'
 
 When the log message is over max_length, the corresponding STATEMENT: 
 message output will be suppressed rather than truncating its tail.
